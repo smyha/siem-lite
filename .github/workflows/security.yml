@@ -1,0 +1,63 @@
+name: Security Scan
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install safety bandit semgrep
+    
+    - name: Run Bandit security scan
+      run: |
+        bandit -r siem_lite/ -f json -o bandit-results.json
+      continue-on-error: true
+    
+    - name: Run Safety check
+      run: |
+        safety check --json --output safety-results.json
+      continue-on-error: true
+    
+    - name: Run Semgrep scan
+      run: |
+        semgrep --config=auto --json --output=semgrep-results.json siem_lite/
+      continue-on-error: true
+    
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-scan-results
+        path: |
+          bandit-results.json
+          safety-results.json
+          semgrep-results.json
+    
+    - name: Create security issue
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: 'Security vulnerabilities detected',
+            body: 'Automated security scan detected vulnerabilities. Please check the artifacts for details.',
+            labels: ['security', 'bug']
+          });

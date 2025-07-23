@@ -1,0 +1,106 @@
+# SIEM Lite Alerting Rules for Prometheus
+
+groups:
+  - name: siem_lite_alerts
+    rules:
+      # High error rate alert
+      - alert: HighErrorRate
+        expr: rate(siem_lite_http_requests_total{status_code=~"5.."}[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate detected in SIEM Lite"
+          description: "Error rate is {{ $value }} errors per second"
+
+      # High alert volume
+      - alert: HighAlertVolume
+        expr: rate(siem_lite_alerts_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High volume of security alerts"
+          description: "Alert generation rate is {{ $value }} alerts per second"
+
+      # Application down
+      - alert: ApplicationDown
+        expr: up{job="siem-lite"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "SIEM Lite application is down"
+          description: "SIEM Lite application has been down for more than 1 minute"
+
+      # Database connectivity issues
+      - alert: DatabaseConnectivityIssue
+        expr: siem_lite_database_connections == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Database connectivity issues"
+          description: "No active database connections detected"
+
+      # High response time
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(siem_lite_http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }} seconds"
+
+      # Critical severity alerts spike
+      - alert: CriticalAlertSpike
+        expr: increase(siem_lite_alerts_total{severity="CRITICAL"}[10m]) > 5
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Spike in critical security alerts"
+          description: "{{ $value }} critical alerts generated in the last 10 minutes"
+
+      # Authentication failure spike
+      - alert: AuthenticationFailureSpike
+        expr: rate(siem_lite_authentication_attempts_total{result="failure"}[5m]) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate of authentication failures"
+          description: "Authentication failure rate is {{ $value }} failures per second"
+
+  - name: siem_lite_system
+    rules:
+      # High CPU usage
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage detected"
+          description: "CPU usage is {{ $value }}%"
+
+      # High memory usage
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage detected"
+          description: "Memory usage is {{ $value }}%"
+
+      # Low disk space
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Low disk space detected"
+          description: "Disk usage is {{ $value }}%"
