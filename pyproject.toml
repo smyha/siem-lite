@@ -43,6 +43,7 @@ dependencies = [
     "structlog>=23.0.0",
     "tenacity>=8.0.0",
     "typer>=0.9.0",
+    "psutil>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -74,10 +75,10 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/siem-lite/siem-lite"
+Homepage = "https://github.com/smyha/siem-lite"
 Documentation = "https://siem-lite.github.io/siem-lite/"
-Repository = "https://github.com/siem-lite/siem-lite"
-"Bug Tracker" = "https://github.com/siem-lite/siem-lite/issues"
+Repository = "https://github.com/smyha/siem-lite"
+"Bug Tracker" = "https://github.com/smyha/siem-lite/issues"
 
 [project.scripts]
 siem-lite = "siem_lite.cli:cli"

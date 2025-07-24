@@ -24,7 +24,7 @@ scrape_configs:
   # SIEM Lite application
   - job_name: 'siem-lite'
     static_configs:
-      - targets: ['siem-lite:8000']
+      - targets: ['host.docker.internal:8000']
     metrics_path: '/api/metrics'
     scrape_interval: 10s
     scrape_timeout: 5s
@@ -32,7 +32,7 @@ scrape_configs:
   # SIEM Lite health checks
   - job_name: 'siem-lite-health'
     static_configs:
-      - targets: ['siem-lite:8000']
+      - targets: ['host.docker.internal:8000']
     metrics_path: '/api/health'
     scrape_interval: 30s
     

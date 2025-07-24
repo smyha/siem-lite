@@ -113,6 +113,7 @@ class Settings(BaseSettings):
     app_version: str = "1.0.0"
     debug: bool = Field(default=False)
     environment: str = Field(default="development")
+    enable_docs: bool = Field(default=True if os.getenv("SIEM_ENV", "development") == "development" else False)
 
     # Paths
     project_root: Path = Path(__file__).parent.parent.parent

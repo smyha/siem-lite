@@ -2,7 +2,7 @@
 # Multi-stage build for production-ready Python application
 
 # Build stage
-FROM python:3.11-slim as builder
+FROM python:3.12-alpine AS builder
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -11,10 +11,12 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
-    build-essential \
+RUN apk add --no-cache \
+    build-base \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    gcc \
+    musl-dev \
+    libffi-dev
 
 # Create and activate virtual environment
 RUN python -m venv /opt/venv
@@ -26,7 +28,7 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Production stage
-FROM python:3.11-slim as production
+FROM python:3.12-alpine AS production
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -35,10 +37,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     SIEM_LITE_ENV=production
 
 # Install only runtime dependencies
-RUN apt-get update && apt-get install -y \
+RUN apk add --no-cache \
     curl \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd -r siem && useradd -r -g siem siem
+    && addgroup -g 1001 -S siem \
+    && adduser -S siem -G siem -u 1001
 
 # Copy virtual environment from builder stage
 COPY --from=builder /opt/venv /opt/venv

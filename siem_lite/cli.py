@@ -1565,5 +1565,58 @@ def export(export_format: str = "json", output: str = None):
         sys.exit(1)
 
 
+@cli.command()
+@click.option("--type", "attack_type", type=click.Choice(["brute-force", "sql-injection", "ddos", "mixed", "continuous"]), default="mixed", help="Type of attack to simulate")
+@click.option("--count", default=50, help="Number of attack events to generate")
+@click.option("--duration", default=0, help="Duration in seconds for continuous attacks (0 = single burst)")
+@click.option("--output", "-o", default="data/attack_simulation.log", help="Output file for attack logs")
+def simulate_attacks(attack_type: str, count: int, duration: int, output: str):
+    """🚨 Simulate various types of cyber attacks for testing."""
+    click.echo(f"🚨 Starting {attack_type} attack simulation...")
+    
+    try:
+        from siem_lite.infrastructure.attack_simulator import AttackSimulator
+        
+        simulator = AttackSimulator()
+        
+        if duration > 0:
+            click.echo(f"⏱️ Running continuous simulation for {duration} seconds...")
+            simulator.run_continuous_simulation(attack_type, duration, output)
+        else:
+            click.echo(f"💥 Generating {count} {attack_type} attack events...")
+            simulator.generate_attack_events(attack_type, count, output)
+        
+        click.echo(f"✅ Attack simulation completed. Events saved to {output}")
+        click.echo("💡 Run 'siem-lite process' to generate alerts from these events")
+        
+    except Exception as e:
+        click.echo(f"❌ Error during attack simulation: {e}")
+        sys.exit(1)
+
+
+@cli.command()
+@click.option("--scenario", type=click.Choice(["brute-force", "data-exfiltration", "insider-threat", "all"]), default="all", help="Response scenario to test")
+def test_responses(scenario: str):
+    """🛡️ Test automated incident response workflows."""
+    click.echo(f"🛡️ Testing incident response for {scenario} scenario...")
+    
+    try:
+        from siem_lite.infrastructure.incident_response import IncidentResponseTester
+        
+        tester = IncidentResponseTester()
+        results = tester.test_scenario(scenario)
+        
+        click.echo("📊 Response Test Results:")
+        for test_name, result in results.items():
+            status = "✅ PASS" if result["success"] else "❌ FAIL"
+            click.echo(f"  {test_name}: {status} ({result['duration']:.2f}s)")
+            if result.get("details"):
+                click.echo(f"    Details: {result['details']}")
+        
+    except Exception as e:
+        click.echo(f"❌ Error testing responses: {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     cli()

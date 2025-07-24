@@ -1,17 +1,17 @@
 # SIEM Lite API Documentation
 
-## 🚀 Descripción General
+## 🚀 Overview
 
-SIEM Lite API es una REST API completa construida con FastAPI que proporciona funcionalidades de gestión de alertas de seguridad, monitoreo y estadísticas del sistema.
+SIEM Lite API is a comprehensive REST API built with FastAPI that provides security alert management, monitoring, and system statistics functionalities.
 
-## 📋 Endpoints Disponibles
+## 📋 Available Endpoints
 
 ### 🏠 Root Endpoint
 
 #### `GET /`
-Endpoint raíz del sistema.
+System root endpoint.
 
-**Respuesta:**
+**Response:**
 ```json
 {
   "message": "SIEM Lite API - Security Information and Event Management",
@@ -22,19 +22,19 @@ Endpoint raíz del sistema.
 
 ---
 
-### 🚨 Alertas (Alerts)
+### 🚨 Alerts
 
 #### `GET /api/alerts`
-Lista todas las alertas con paginación.
+Lists all alerts with pagination.
 
-**Parámetros de consulta:**
-- `page` (int, opcional): Número de página (por defecto: 1)
-- `limit` (int, opcional): Elementos por página (por defecto: 10)
-- `severity` (string, opcional): Filtrar por severidad (LOW, MEDIUM, HIGH, CRITICAL)
-- `status` (string, opcional): Filtrar por estado (OPEN, ACKNOWLEDGED, RESOLVED)
-- `alert_type` (string, opcional): Filtrar por tipo de alerta
+**Query parameters:**
+- `page` (int, optional): Page number (default: 1)
+- `limit` (int, optional): Items per page (default: 10)
+- `severity` (string, optional): Filter by severity (LOW, MEDIUM, HIGH, CRITICAL)
+- `status` (string, optional): Filter by status (OPEN, ACKNOWLEDGED, RESOLVED)
+- `alert_type` (string, optional): Filter by alert type
 
-**Respuesta:**
+**Response:**
 ```json
 {
   "items": [
@@ -61,9 +61,9 @@ Lista todas las alertas con paginación.
 ```
 
 #### `POST /api/alerts`
-Crea una nueva alerta.
+Creates a new alert.
 
-**Cuerpo de la petición:**
+**Request body:**
 ```json
 {
   "alert_type": "SSH Brute-Force Attempt",
@@ -73,7 +73,7 @@ Crea una nueva alerta.
 }
 ```
 
-**Respuesta:** `201 Created`
+**Response:** `201 Created`
 ```json
 {
   "id": 1,
@@ -91,20 +91,20 @@ Crea una nueva alerta.
 ```
 
 #### `GET /api/alerts/{id}`
-Obtiene una alerta específica por ID.
+Gets a specific alert by ID.
 
-**Parámetros:**
-- `id` (int): ID de la alerta
+**Parameters:**
+- `id` (int): Alert ID
 
-**Respuesta:** `200 OK` (misma estructura que POST)
+**Response:** `200 OK` (same structure as POST)
 
 #### `PUT /api/alerts/{id}`
-Actualiza una alerta existente.
+Updates an existing alert.
 
-**Parámetros:**
-- `id` (int): ID de la alerta
+**Parameters:**
+- `id` (int): Alert ID
 
-**Cuerpo de la petición:**
+**Request body:**
 ```json
 {
   "alert_type": "SSH Brute-Force Attempt",

@@ -1,10 +1,10 @@
-# SIEM Lite - Docker y Containerización
+# SIEM Lite - Docker and Containerization
 
-## 🐳 Descripción General
+## 🐳 Overview
 
-SIEM Lite está completamente containerizado usando Docker y Docker Compose, proporcionando un stack completo de aplicaciones incluyendo la API, base de datos, monitoreo y proxy reverso.
+SIEM Lite is fully containerized using Docker and Docker Compose, providing a complete application stack including API, database, monitoring, and reverse proxy.
 
-## 📦 Arquitectura de Contenedores
+## 📦 Container Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐

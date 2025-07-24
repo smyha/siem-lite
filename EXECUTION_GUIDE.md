@@ -628,3 +628,269 @@ docker build -t siem-lite:production .
 # Run with resource limits
 docker run -d --name siem-lite -p 8000:8000 --memory=512m --cpus=1.0 siem-lite:production
 ```
+
+## 📊 Monitoring and Visualization with Grafana & Prometheus
+
+### **Overview**
+SIEM Lite includes integrated monitoring capabilities using Grafana for dashboards and Prometheus for metrics collection. This provides real-time visibility into system performance, security events, and threat patterns.
+
+### **🚀 Quick Start with Docker Compose**
+
+#### **1. Start Monitoring Stack**
+```bash
+# From project root directory
+docker-compose up -d grafana prometheus
+
+# Verify containers are running
+docker-compose ps
+```
+
+**Expected Output:**
+```
+NAME                   IMAGE                     STATUS         PORTS
+siem-lite-grafana      grafana/grafana:9.3.0     Up 8 seconds   0.0.0.0:3000->3000/tcp
+siem-lite-prometheus   prom/prometheus:v2.40.0   Up 8 seconds   0.0.0.0:9090->9090/tcp
+```
+
+#### **2. Access URLs**
+- **Grafana Dashboard**: http://localhost:3000
+- **Prometheus Metrics**: http://localhost:9090
+- **SIEM Lite API**: http://localhost:8000
+
+#### **3. Grafana Login Credentials**
+- **Username**: `admin`
+- **Password**: `admin123`
+
+### **🔧 Alternative Execution Methods**
+
+#### **Individual Docker Containers**
+```bash
+# 1. Create network
+docker network create siem-network
+
+# 2. Start Prometheus
+docker run -d \
+  --name siem-lite-prometheus \
+  --network siem-network \
+  -p 9090:9090 \
+  -v ${PWD}/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml \
+  prom/prometheus:v2.40.0
+
+# 3. Start Grafana
+docker run -d \
+  --name siem-lite-grafana \
+  --network siem-network \
+  -p 3000:3000 \
+  -e GF_SECURITY_ADMIN_PASSWORD=admin123 \
+  -v ${PWD}/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards \
+  -v ${PWD}/monitoring/grafana/datasources:/etc/grafana/provisioning/datasources \
+  grafana/grafana:9.3.0
+```
+
+#### **Local Installation (Advanced)**
+
+**Windows:**
+```powershell
+# Install Grafana
+winget install GrafanaLabs.Grafana
+
+# Start service
+net start grafana
+```
+
+**Linux:**
+```bash
+# Ubuntu/Debian
+sudo apt-get install -y software-properties-common
+sudo add-apt-repository "deb https://packages.grafana.com/oss/deb stable main"
+sudo apt-get update && sudo apt-get install grafana
+
+# Start service
+sudo systemctl start grafana-server
+sudo systemctl enable grafana-server
+```
+
+### **📈 Metrics and Data Sources**
+
+#### **Available Metrics**
+- **System Performance**: CPU, Memory, Disk usage
+- **API Metrics**: Request count, response times, error rates
+- **Security Events**: Alert counts, threat patterns
+- **Database Metrics**: Query performance, connection counts
+
+#### **Prometheus Configuration**
+The system automatically scrapes metrics from:
+- SIEM Lite API: http://siem-lite:8000/api/metrics
+- Health checks: http://siem-lite:8000/api/health
+- System metrics via node-exporter (if available)
+
+### **🛠️ Management Commands**
+
+```bash
+# View Grafana logs
+docker-compose logs -f grafana
+
+# View Prometheus logs
+docker-compose logs -f prometheus
+
+# Restart services
+docker-compose restart grafana prometheus
+
+# Stop monitoring stack
+docker-compose down
+
+# Remove all data (reset)
+docker-compose down -v
+```
+
+### **🔍 Troubleshooting Monitoring**
+
+#### **No Data in Grafana**
+1. **Check Prometheus targets**:
+   - Go to http://localhost:9090/targets
+   - Verify SIEM Lite target is "UP"
+
+2. **Start SIEM Lite API**:
+   ```bash
+   # Ensure API is running for metrics collection
+   docker-compose up -d siem-lite
+   # OR start locally
+   siem-lite run --port 8000
+   ```
+
+3. **Generate sample data**:
+   ```bash
+   # Generate logs and alerts for testing
+   siem-lite generate --count 500
+   siem-lite process --input data/simulated.log
+   ```
+
+#### **Connection Issues**
+```bash
+# Check network connectivity
+docker network ls
+docker inspect siem-lite_siem-network
+
+# Verify port accessibility
+curl http://localhost:3000  # Grafana
+curl http://localhost:9090  # Prometheus
+curl http://localhost:8000/api/health  # SIEM Lite
+```
+
+## 🎯 Attack Simulation and Testing
+
+### **Why Simulate Attacks?**
+To properly test SIEM Lite's detection capabilities and generate meaningful data for Grafana dashboards, you need realistic security events and attack patterns.
+
+### **🚨 Built-in Attack Simulation**
+
+#### **1. Generate Sample Security Events**
+```bash
+# Generate various types of security logs
+siem-lite generate --count 1000 --output data/security_events.log
+
+# Generate specific attack patterns
+siem-lite simulate-attacks --type brute-force --count 50
+siem-lite simulate-attacks --type sql-injection --count 30
+siem-lite simulate-attacks --type ddos --count 100
+```
+
+#### **2. Process and Create Alerts**
+```bash
+# Process logs and generate alerts
+siem-lite process --input data/security_events.log
+
+# Analyze threat patterns
+siem-lite analyze-threats
+```
+
+#### **3. Interactive Attack Simulation**
+```bash
+# Start interactive CLI
+siem-lite
+
+# Select from menu:
+# 📝 Generate Logs → Creates realistic log entries
+# ⚙️ Process Logs → Generates alerts from logs
+# 🛡️ Analyze Threats → Shows attack statistics
+```
+
+### **🎮 Manual Attack Simulation**
+
+#### **Simulate Brute Force Attacks**
+```python
+# Create custom attack simulation script
+python scripts/simulate_brute_force.py
+
+# Or use curl commands
+for i in {1..100}; do
+  curl -X POST http://localhost:8000/api/login \
+    -H "Content-Type: application/json" \
+    -d '{"username":"admin","password":"wrong'$i'"}'
+  sleep 0.1
+done
+```
+
+#### **Generate High-Volume Traffic**
+```bash
+# Use Apache Bench for load testing
+ab -n 1000 -c 10 http://localhost:8000/api/health
+
+# Use curl in loop for sustained traffic
+while true; do
+  curl http://localhost:8000/api/stats
+  sleep 1
+done
+```
+
+### **📊 Testing Dashboard Data**
+
+#### **Populate Dashboard with Realistic Data**
+```bash
+# 1. Start full stack
+docker-compose up -d
+
+# 2. Generate comprehensive test data
+siem-lite setup  # Initialize database
+siem-lite generate --count 2000  # Create logs
+siem-lite process  # Generate alerts
+
+# 3. Simulate ongoing attacks
+siem-lite simulate-attacks --type mixed --duration 300  # 5 minutes
+
+# 4. Check Grafana dashboards
+# Visit http://localhost:3000 and explore the dashboards
+```
+
+#### **Verify Metrics Flow**
+```bash
+# Check Prometheus metrics
+curl http://localhost:9090/api/v1/query?query=siem_lite_alerts_total
+
+# Check API metrics endpoint
+curl http://localhost:8000/api/metrics
+
+# View raw metrics data
+curl http://localhost:8000/api/stats
+```
+
+### **🚀 Quick Response and Mitigation Testing**
+
+#### **Automated Response Simulation**
+```bash
+# Test incident response workflows
+siem-lite test-responses --scenario brute-force
+siem-lite test-responses --scenario data-exfiltration
+siem-lite test-responses --scenario insider-threat
+```
+
+#### **Real-time Monitoring Test**
+```bash
+# Start real-time monitoring
+siem-lite monitor --interval 1
+
+# In another terminal, generate attacks
+siem-lite simulate-attacks --type continuous --duration 120
+```
+
+This comprehensive monitoring and simulation setup ensures that your SIEM Lite installation provides meaningful security insights and demonstrates its capabilities effectively.

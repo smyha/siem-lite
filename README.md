@@ -1,13 +1,8 @@
 # 🛡️ SIEM Lite - Security Information and Event Management
 
 ![Python](https://img.shields.io/badge/python-v3.9+-blue.svg)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)## 🙏 Acknowledgments
-
-- Built with [FastAPI](https://fastapi.tiangolo.com/) for the modern REST API framework
-- [SQLAlchemy](https://www.sqlalchemy.org/) for powerful database ORM (2.0+ ready)
-- [Pydantic V2](https://docs.pydantic.dev/latest/) for high-performance data validation
-- [Sphinx](https://www.sphinx-doc.org/) for professional documentation generation
-- [pytest](https://pytest.org/) for comprehensive testing frameworkcker](https://img.shields.io/badge/docker-ready-blue.svg)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)
+![Docker](https://img.shields.io/badge/docker-ready-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 A lightweight Security Information and Event Management system built with FastAPI, designed to detect, analyze and manage security events in real-time.
@@ -25,8 +20,8 @@ A lightweight Security Information and Event Management system built with FastAP
 ## 📚 Documentation
 
 ### 📖 Main Guides
-- **[� Execution Guide](./EXECUTION_GUIDE.md)** - Step-by-step setup and troubleshooting
-- **[�📋 API Documentation](./docs/API.md)** - Complete REST API documentation
+- **[🚀 Execution Guide](./EXECUTION_GUIDE.md)** - Step-by-step setup and troubleshooting
+- **[📋 API Documentation](./docs/API.md)** - Complete REST API documentation
 - **[🏗️ Architecture Guide](./docs/ARCHITECTURE.md)** - System architecture and design patterns
 - **[🐳 Docker Guide](./docs/DOCKER.md)** - Complete containerization and orchestration
 - **[📊 Monitoring Guide](./docs/MONITORING.md)** - Prometheus/Grafana metrics system
@@ -59,20 +54,26 @@ siem_lite/
 #### 1. **Clone and Setup**
 ```bash
 # Clone the repository
-git clone https://github.com/siem-lite/siem-lite.git
+git clone https://github.com/smyha/siem-lite.git  # HTTPS 
+git clone git@github.com:smyha/siem-lite.git  # SSH
+
+# Navigate to the project directory
 cd siem-lite
 
 # Create virtual environment
 python -m venv venv
 
 # Activate virtual environment
-# Windows:
-venv\Scripts\activate
 # Linux/Mac:
 source venv/bin/activate
+# Windows:
+venv\Scripts\activate
 
 # Install dependencies
-pip install -r requirements.txt
+pip install -e .
+
+# Verify installation
+# pip install -r requirements.txt
 ```
 
 #### 2. **Initialize Database**
@@ -90,7 +91,10 @@ uvicorn siem_lite.main:app --host 0.0.0.0 --port 8000 --workers 4
 ```
 
 #### 4. **Access the Application**
-- **📚 API Documentation:** http://127.0.0.1:8000/docs
+- **📚 API Documentation (Swagger UI):** http://127.0.0.1:8000/docs
+- **📚 API Documentation (ReDoc):** http://127.0.0.1:8000/redoc
+- **📊 Prometheus Metrics:** http://127.0.0.1:9090
+- **📈 Grafana Dashboards:** http://127.0.0.1:3000
 - **❤️ Health Check:** http://127.0.0.1:8000/api/health
 - **🚨 Alerts API:** http://127.0.0.1:8000/api/alerts
 
